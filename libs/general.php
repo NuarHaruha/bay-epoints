@@ -4,7 +4,7 @@
  * General functions
  *
  * @author  Nuarharuha <nhnoah+bay-isra@gmail.com>
- * @filesource https://github.com/NuarHaruha/bay-mk/blob/master/libs/general.php
+ * @filesource https://github.com/NuarHaruha/bay-epoints/blob/master/libs/general.php
  * @since   1.0
  */
 

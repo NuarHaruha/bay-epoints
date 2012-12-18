@@ -8,7 +8,7 @@
  * @author      Nuarharuha <nhnoah+bay-isra@gmail.com>
  * @copyright   Copyright (C) 2012, Nuarharuha, MDAG Consultancy
  * @license     http://mdag.mit-license.org/ MIT License
- * @filesource  https://github.com/NuarHaruha/bay-mk/blob/master/libs/metabox.php
+ * @filesource  https://github.com/NuarHaruha/bay-epoints/blob/master/libs/metabox.php
  * @version     1.0
  * @access      public
  */
