@@ -4,7 +4,7 @@
     <?php settings_errors(); ?>
     <?php do_action('mc_notification', $_REQUEST);?>
     <form name="report-form" method="post">
-        <input type="hidden" name="action" value="mc-ewallet">
+        <input type="hidden" name="action" value="<?php ew_action_hook();?>">
         <input type="hidden" name="page" value="<?php echo $_REQUEST['page']; ?>"/>
         <?php wp_nonce_field(WTYPE::NONCE_WALLET);
         wp_nonce_field( 'meta-box-order', 'meta-box-order-nonce', false );
