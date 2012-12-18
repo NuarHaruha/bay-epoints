@@ -9,7 +9,7 @@
  */
 jQuery(document).ready(function($) {
 	$('<img>', {
-		src: plugin_uri + 'img/small-loader.gif',
+		src: plugin_uri + 'public/img/small-loader.gif',
 		class: 'dn isloading'
 	}).appendTo('#mc-deposit h3.hndle');
 	var mc = {
@@ -19,7 +19,7 @@ jQuery(document).ready(function($) {
 		},
 		url: ajaxurl,
 		params: {
-			action: "mc-get-uservar",
+			action: "suggest-get",
 			json: 1
 		},
 		data: false,
@@ -50,25 +50,26 @@ jQuery(document).ready(function($) {
 				break;
 			case 2:
 				this.params.code = val;
-                
 				break;
-			}
-            
+			};
             this.params.json = key;
 			var request_type = key;
 			$.getJSON(this.url, this.params, function(data) {
 				mc.setup(data, request_type);
 			});
-		},
+		}
 	};
-	$("input#user_name").suggest(ajaxurl + "?action=mc-suggest-name", {
-		delay: 500,
-		minchars: 2,
+
+
+	$("input#user_name").suggest(
+        ajaxurl + "?action=suggest-name&q=" + $("#user_name").val(),
+        { delay: 500, minchars: 2,
 		onSelect: function() {
 			mc.getUserInfo(mc.type.name, this.value);
 		}
 	});
-	$("input#user_code").suggest(ajaxurl + "?action=mc-suggest-code", {
+	$("input#user_code").suggest(
+        ajaxurl + "?action=suggest-code&q=" + $("#user_code").val(), {
 		delay: 500,
 		minchars: 2,
 		onSelect: function() {
