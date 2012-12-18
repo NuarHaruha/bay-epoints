@@ -96,3 +96,63 @@ function mc_wallet_install(){
 	}    
 }
 /** mc_wallet_install() */
+
+/**
+ * register role & capability for account manager
+ * @globals mixed|object $wp_roles WP_Roles object
+ */
+function mc_wallet_register_role_cap(){
+    global $wp_roles;
+
+    if (!isset( $wp_roles )) $wp_roles = new WP_Roles();
+
+    // reset
+
+    $wp_roles->remove_role(WTYPE::ROLE_MANAGER); // cleanup just in case
+
+    // clone role & cap
+
+    $editor = $wp_roles->get_role('editor');
+
+    $wp_roles->add_role(WTYPE::ROLE_MANAGER,WTYPE::ROLE_MANAGER_NAME, $editor->capabilities);
+
+
+    // add cap
+
+    $wp_roles->add_cap(WTYPE::ROLE_MANAGER, WTYPE::MANAGER_CAP);
+
+    $wp_roles->add_cap(WTYPE::ROLE_MANAGER, 'list_users');
+
+    $wp_roles->add_cap(WTYPE::ROLE_MANAGER, 'transfer_pin');
+
+    $wp_roles->add_cap('administrator', WTYPE::MANAGER_CAP);
+
+    // remove unused cap from WTYPE::ROLE_MANAGER;
+
+    $caps = array(
+        'delete_posts',
+        'delete_pages',
+        'delete_others_pages',
+        'delete_published_pages',
+        'delete_others_posts',
+        'delete_published_posts',
+        'delete_private_posts',
+        'edit_published_posts',
+        'edit_published_pages',
+        'edit_private_posts',
+        'edit_others_pages',
+        'edit_others_posts',
+        'edit_pages',
+        'edit_posts',
+        'delete_private_pages',
+        'edit_private_pages',
+        'publish_pages',
+        'publish_posts',
+        'manage_links',
+        'moderate_comments'
+    );
+
+    foreach($caps as $cap){
+        $wp_roles->remove_cap(WTYPE::ROLE_MANAGER, $cap);
+    }
+}
