@@ -68,7 +68,12 @@ class mc_ewallet
     {
         $libs = array(
             'install',      // setup db table scripts
-            'general'       // general functions, util
+            'points',       // points
+            'general',      // general functions, util
+            'metabox',      // metabox widgets
+            'actions',      // actions hook
+            'json',         // json data & ajax function
+            'transaction'   // deposit & logger
         );
 
         foreach($libs as $slug){
@@ -101,6 +106,11 @@ class mc_ewallet
     public function registerAdminScripts()
     {
         wp_register_script('ewallet-suggest', $this->uri['js']. 'suggest.js', array('jquery','suggest'), false, true );
+
+        // ajax scripts
+        add_action('wp_ajax_suggest-name', 'ew_suggest');
+        add_action('wp_ajax_suggest-code', 'ew_suggest');
+        add_action('wp_ajax_suggest-get', 'json_get_suggest');
     }
 
     /**
@@ -122,9 +132,37 @@ class mc_ewallet
      */
     public function registerAdminMetabox()
     {
-
+        if (isset($_REQUEST['panel'])){
+            switch($_REQUEST['panel']){
+                case 'deposit':
+                        $this->_registerDepositMetabox();
+                    break;
+                case 'penalty':
+                        $this->_registerPenaltyMetabox();
+                    break;
+                case 'list':
+                    default:
+                        $this->_registerListMetabox();
+                    break;
+            }
+        } else {
+            $this->_registerListMetabox();
+        }
     }
 
+    private function _registerListMetabox()
+    {}
+
+    private function _registerDepositMetabox()
+    {
+        $args = array();
+
+        add_meta_box('opt_ew_deposit','Deposit to e-Wallet', 'mb_ew_deposit',
+            $this->page['primary'],'normal','high', $args);
+    }
+
+    private function _registerPenaltyMetabox()
+    {}
     /**
      * load admin page
      */
@@ -201,6 +239,10 @@ class mc_ewallet
 
         wp_enqueue_script('jquery');
         wp_enqueue_script('postbox');
+
+        if (isset($_REQUEST['panel']) && $_REQUEST['panel'] == 'deposit'){
+            wp_enqueue_script('ewallet-suggest');
+        }
     }
 
     /**
@@ -210,7 +252,95 @@ class mc_ewallet
      * @since   1.0.0
      * @access  public
      */
-    public function saveSettings(){}
+    public function saveSettings()
+    {
+        $req = _obj($_REQUEST);
+
+        if (isset($req->action)){
+
+            switch($req->page){
+                case 'mc-ew-settings':
+                    break;
+                case 'mc-ew':
+                    default:
+                    /** tab section, within main page */
+                    switch ($req->action):
+                        case 'mc-wallet-penalty':
+                            break;
+                        case 'mc-wallet-deposit':
+                            $this->_saveDeposit();
+                            break;
+                        case 'mc-wallet-list':
+                        default:
+                            break;
+                    endswitch;
+                    break;
+            }
+        }
+    }
+
+    /**
+     * save deposit
+     */
+    private function _saveDeposit()
+    {
+        $req = _obj($_REQUEST);
+
+        if (wp_verify_nonce($req->_wpnonce, WTYPE::NONCE_WALLET) )
+        {
+            if (isset($req->section_deposit))
+            {
+                $user       = new stdClass();
+                $meta_keys  = array(
+                    'user_name',
+                    'user_code',
+                    'user_id',
+                    'deposit_amount',
+                    'timestamp',
+                    'transaction_type',
+                    'transaction_note'
+                );
+
+                foreach($meta_keys as $k)
+                {
+                    if (isset($_REQUEST[$k]) && !empty($_REQUEST[$k]))
+                    {
+                        $value = $_REQUEST[$k];
+                        switch($k){
+                            case 'user_id': $value = (int) $value; break;
+                            case 'deposit_amount':  $value = floatval($value); break;
+                        }
+                        $user->$k = $value;
+                    }
+                }
+
+                if (isset($user->transaction_type)){
+                    switch ($user->transaction_type){
+                        case WTYPE::DEPOSIT_RM:
+                            deposit_points_rm($user->user_id, $user->deposit_amount);
+                            $this->_log($user->user_id, $user->deposit_amount);
+                            break;
+                        case WTYPE::DEPOSIT_PV:
+                            deposit_points_pv($user->user_id, $user->deposit_amount);
+                            $this->_log($user->user_id, $user->deposit_amount, WTYPE::DEPOSIT_PV, WTYPE::PV);
+                            break;
+                    }
+                }
+
+            }
+
+            PATHTYPE::REDIRECT(PATHTYPE::URI_EWALLET);
+        }
+    }
+
+    /**
+     * log transaction
+     * @see eWalletTransaction
+     */
+    private function _log($uid, $points, $transaction = WTYPE::DEPOSIT_RM, $currency = WTYPE::RM)
+    {
+        new eWalletTransaction($uid, $points, $transaction, $currency);
+    }
 }
 
 new mc_ewallet();
