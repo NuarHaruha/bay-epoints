@@ -15,3 +15,72 @@
 .isloading{
     float:right;
 }
+
+.ewallet #poststuff .inside{
+    padding: 0pt;
+    margin: 0pt;
+}
+
+.ewallet #poststuff .inside p{
+    padding: 0px 10px 1em;
+}
+
+.ewallet #poststuff .inside input[disabled]{
+    background-color: transparent !important;
+    border: 0pt;
+}
+
+.ewallet #poststuff .inside *.disabled{
+    background-color: transparent !important;
+    border: 0pt;
+}
+
+.ewallet #poststuff .inside th abbr{
+    border-bottom: 1px #aaa dashed;
+    cursor: pointer;
+}
+
+.ewallet #poststuff label{
+    font-family: Arial, serif;
+    font-size: 80%;
+    font-weight: 700;
+}
+
+.ewallet #poststuff .widefat input.code{
+    margin-right: 10px;
+}
+
+.ewallet #poststuff .nobot{
+    border-bottom: 0pt;
+}
+.ewallet #poststuff .inner-td{
+    padding: 5px 0px 0px;
+}
+
+.dn{display: none}
+.db{display:block}
+
+
+.toggle-district{
+    font-weight:700;
+    color:#333
+}
+
+.muted{
+    color: #bbb;
+    font-weight: 400;
+}
+
+.ewallet input.normal-text{
+    width: 100%;
+    font-family: Consolas,Monaco,monospace;
+}
+
+.width-85{
+    width: 85%;
+}
+
+.ewallet #poststuff .widefat input:focus,
+.ewallet #poststuff .widefat textarea:focus{
+    background-color: lightyellow;
+}
