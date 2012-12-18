@@ -16,13 +16,13 @@ function show_ew_main_tab(){
 }
 /**
  *  show navigation tab base on requested page
- *  @param string $current slug-name ew-list, ew-deposit & ew-penalty
+ *  @param string $current slug-name list, deposit & penalty
  */
-function ew_main_tabs( $current = 'ew-list' ) {
+function ew_main_tabs( $current = 'list' ) {
     $tabs = array(
-        'ew-list'       => 'Transaction',
-        'ew-deposit'    => 'Deposit',
-        'ew-penalty'    => 'Penalty',
+        'list'       => 'Transaction',
+        'deposit'    => 'Deposit',
+        'penalty'    => 'Penalty',
     );
 
     echo '<div id="icon-wallet" class="icon32"><br></div>';
@@ -32,4 +32,18 @@ function ew_main_tabs( $current = 'ew-list' ) {
         echo "<a class='nav-tab$class' href='/wp-admin/admin.php?page=mc-ew&panel=$tab'>$name</a>";
     }
     echo '</h2>';
+}
+
+function ew_action_hook(){
+
+    $handle = 'mc-wallet-';
+
+    if (isset($_REQUEST['panel'])){
+        $handle .= $_REQUEST['panel'];
+    } else {
+        $handle .= 'list';
+    }
+
+    echo $handle;
+
 }
