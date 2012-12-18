@@ -18,7 +18,7 @@
  * @author  Nuarharuha <nhnoah+bay-isra@gmail.com>
  * @filesource https://github.com/NuarHaruha/bay-epoints/blob/master/libs/install.php
  * @since   1.0
- * @version 1.1
+ * @version 1.2
  * @return  mixed|array
  */
 function mc_wallet_install(){
@@ -36,7 +36,7 @@ function mc_wallet_install(){
 			  transaction_id BIGINT(20) unsigned NOT NULL AUTO_INCREMENT,
 			  uid BIGINT(20) unsigned NOT NULL,
 			  currency TINYINT(2) NOT NULL,
-			  transaction TINYINT(4) NOT NULL,
+			  transaction SMALLINT(4) NOT NULL,
 			  points BIGINT(20) NOT NULL,
 			  date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 			  PRIMARY KEY transaction_id (transaction_id),
