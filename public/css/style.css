@@ -1,0 +1,17 @@
+.db{ display:block}
+.dn{display:none}
+.muted{color:silver}
+.txright{text-align:right}
+.txleft{text-align:left}
+
+#icon-wallet{background: url('../img/ewallet-32.png') no-repeat 0% 0%; }
+
+#mc-deposit h3.hndle span:before{
+    content: url('../img/coins_in_hand.png');
+    padding-right:3px;
+}
+
+/* small loader */
+.isloading{
+    float:right;
+}
