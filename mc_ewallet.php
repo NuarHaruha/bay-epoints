@@ -68,6 +68,7 @@ class mc_ewallet
     {
         $libs = array(
             'install',      // setup db table scripts
+            'general'       // general functions, util
         );
 
         foreach($libs as $slug){
@@ -83,6 +84,7 @@ class mc_ewallet
         add_action('admin_init', array($this, 'registerAdminStylesheets'));
         add_action('admin_init', array($this, 'registerAdminScripts'));
         add_action('admin_menu', array($this, 'registerAdminMenus'));
+        add_action('add_meta_boxes', array(&$this,'registerAdminMetabox'));
     }
 
     /**
@@ -113,6 +115,14 @@ class mc_ewallet
         $this->page['primary'] = add_menu_page($title, $title, WTYPE::MANAGER_CAP, $this->slug, $callback, $icon, $pos);
 
         $this->_triggerDefaultPageAction($this->page['primary']);
+    }
+
+    /**
+     *  register admin metabox
+     */
+    public function registerAdminMetabox()
+    {
+
     }
 
     /**

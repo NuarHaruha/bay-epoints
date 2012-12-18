@@ -1,7 +1,6 @@
 <?php do_action('main_ewallet_request', $_REQUEST);?>
 <div class="wrap ewallet">
-    <div id="icon-wallet" class="icon32"></div>
-    <h2 class="">Manage e-Wallet</h2>
+    <?php show_ew_main_tab(); ?>
     <?php settings_errors(); ?>
     <?php do_action('mc_notification', $_REQUEST);?>
     <form name="report-form" method="post">
