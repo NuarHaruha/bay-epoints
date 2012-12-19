@@ -17,6 +17,8 @@ function ew_log_transaction(){
     foreach_callbacks_hook(array(
         'act_transaction_log_modified_by',
         'act_transaction_note'), 'after_transaction_log',1,2);
+
+    add_action('after_transaction_log','act_transaction_end',100,2);
 }
 
 /**
@@ -49,4 +51,13 @@ function act_transaction_note($transaction_id, $transaction){
         $note = (string) $_REQUEST['transaction_note'];
         eWalletTransaction::add_meta($transaction_id, 'transaction_note', $note);
     }
+}
+
+/**
+ * redirect transaction
+ * to receipt details page
+ */
+function act_transaction_end($transaction_id, $transaction){
+    $url = sprintf(PATHTYPE::URI_EW_RECEIPT, $transaction_id, $transaction['uid'], $transaction['code']);
+    PATHTYPE::REDIRECT($url);
 }
