@@ -126,6 +126,17 @@ class mc_ewallet
         $this->page['primary'] = add_menu_page($title, $title, WTYPE::MANAGER_CAP, $this->slug, $callback, $icon, $pos);
 
         $this->_triggerDefaultPageAction($this->page['primary']);
+
+        /**
+         * Settings page
+         */
+
+        $title      = 'Settings';
+        $slug       = $this->slug.'-settings';
+
+        $this->page['settings'] = add_submenu_page($this->slug, $title, $title, WTYPE::MANAGER_CAP, $slug, $callback);
+
+        $this->_triggerDefaultPageAction($this->page['settings']);
     }
 
     /**
@@ -133,12 +144,14 @@ class mc_ewallet
      */
     public function registerAdminMetabox()
     {
-        if (isset($_REQUEST['receipt'])){
+        $req = _obj($_REQUEST);
+
+        if (isset($req->receipt)){
                 $this->_registerReceiptMetabox();
         }
 
-        if (isset($_REQUEST['panel'])){
-            switch($_REQUEST['panel']){
+        if (isset($req->panel)){
+            switch($req->panel){
                 case 'deposit':
                         $this->_registerDepositMetabox();
                     break;
@@ -151,8 +164,24 @@ class mc_ewallet
                     break;
             }
         } else {
-            $this->_registerListMetabox();
+
+            switch ($req->page){
+                case $this->slug:
+                    $this->_registerListMetabox();
+                    break;
+                case $this->slug.'-settings':
+                    $this->_registerSettingsMetabox();
+                    break;
+            }
         }
+    }
+
+    private function _registerSettingsMetabox()
+    {
+        $args = array();
+
+        add_meta_box('opt_ew_settings','General Settings', 'mc_ewallet_general_settings',
+            $this->page['settings'],'normal','high', $args);
     }
 
     private function _registerReceiptMetabox()
@@ -190,15 +219,19 @@ class mc_ewallet
      */
     public function loadPanel()
     {
+        $path = $this->plugin_path . 'panels/%s.php';
+        $file = false;
+
         switch($_REQUEST['page']){
+            case $this->slug.'-settings': $file = 'settings'; break;
             case $this->slug:
             default:
-                if (!isset($_REQUEST['receipt'])){
-                    require_once $this->plugin_path.'panels/main.php';
-                } else {
-                    require_once $this->plugin_path.'panels/receipt.php';
-                }
+                $file = (!isset($_REQUEST['receipt'])) ? 'main' : 'receipt';
                 break;
+        }
+
+        if ($file){
+            require_once sprintf($path, $file);
         }
     }
 
@@ -297,23 +330,44 @@ class mc_ewallet
 
         if (isset($req->action)){
 
-            switch($req->page){
-                case 'mc-ew-settings':
-                    break;
-                case 'mc-ew':
+            switch($req->page)
+            {
+                case $this->slug . '-settings':
+                    if ($req->action == 'mc-wallet-settings'){
+                        $this->_saveGeneralOptions();
+                    }
+                break;
+                case $this->slug:
                     default:
                     /** tab section, within main page */
-                    switch ($req->action):
-                        case 'mc-wallet-penalty':
-                            break;
-                        case 'mc-wallet-deposit':
-                            $this->_saveDeposit();
-                            break;
-                        case 'mc-wallet-list':
-                        default:
-                            break;
-                    endswitch;
+                        switch ($req->action):
+                            case 'mc-wallet-penalty':
+                                break;
+                            case 'mc-wallet-deposit':
+                                $this->_saveDeposit();
+                                break;
+                            case 'mc-wallet-list':
+                            default:
+                                break;
+                        endswitch;
                     break;
+            }
+        }
+    }
+
+    /**
+     *  save general options
+     */
+    private function _saveGeneralOptions()
+    {
+        $metakeys = array(MKEY::CURRENCY, MKEY::MIN_WITHDRAWAL, MKEY::MIN_TRANSFER);
+
+        foreach($metakeys as $key){
+
+            if (isset($_REQUEST[$key]))
+            {
+                $value = apply_filters('before_save_'.$key, $_REQUEST[$key]);
+                update_option($key, $value);
             }
         }
     }
