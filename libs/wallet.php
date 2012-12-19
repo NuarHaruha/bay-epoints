@@ -62,7 +62,7 @@ function ew_format_receipt($req){
 }
 
 function ew_approved_by($tid, $return_id = false){
-    $uid = get_transaction_meta($tid, 'transaction_by');
+    $uid = get_transaction_meta($tid, MKEY::TRANS_BY);
 
     if ($uid){
         return (! $return_id) ? uinfo($uid,'name') : (int) $uid;
@@ -72,7 +72,7 @@ function ew_approved_by($tid, $return_id = false){
 }
 
 function ew_note($tid){
-    $note = get_transaction_meta($tid, 'transaction_note');
+    $note = get_transaction_meta($tid, MKEY::TRANS_NOTES);
 
     if ($note){
         return (string) $note;

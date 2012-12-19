@@ -214,7 +214,7 @@ function mb_ew_receipt_actions($posts, $options){
  * Settings metabox
  */
 
-function mc_ewallet_general_settings($posts, $options){
+function mc_ew_general_settings($posts, $options){
     ?>
 <table class="form-table widefat">
     <tr valign="top">
@@ -253,4 +253,67 @@ function mc_ewallet_general_settings($posts, $options){
 </table>
 <?php
 
+}
+
+/*---------------------------------------------------------------
+ *  Bank metabox
+ */
+function mc_ew_bank($posts, $options){
+?>
+<table class="widefat nobot">
+    <tbody>
+    <tr valign="top">
+        <th scope="row" style="width:20%">
+            <label for="bank_account_name">Account Name</label>
+        </th>
+        <td style="width:30%">
+            <input type="text" id="bank_account_name" name="bank_account_name" value="" class="regular-text code">
+        </td>
+        <th scope="row" style="width:20%">
+            <label for="bank_name">Bank Name</label>
+        </th>
+        <td style="width:30%">
+            <input type="text" id="bank_name" name="bank_name" value="" class="regular-text code">
+        </td>
+    </tr>
+    <tr valign="top">
+        <th scope="row" style="width:20%">
+            <label for="bank_account_no">Account No. #</label>
+        </th>
+        <td style="width:30%">
+            <input type="text" id="bank_account_no" name="bank_account_no" value="" class="regular-text code">
+        </td>
+        <th scope="row" style="width:20%">
+            <label for="bank_branch">Branch</label>
+        </th>
+        <td style="width:30%">
+            <input type="text" id="bank_branch" name="bank_branch" value="" class="regular-text code">
+        </td>
+    </tr>
+    <tr valign="top">
+        <th scope="row" style="width:20%">
+            <label for="bank_account_type">Account Type</label>
+        </th>
+        <td style="width:30%">
+            <input type="text" id="bank_account_type" name="bank_account_type" value="" class="regular-text code">
+        </td>
+        <td colspan="2"></td>
+    </tr>
+    </tbody>
+    <tfoot>
+        <tr>
+            <th colspan="4" scope="row">
+                <button class="button-secondary go-back">Back</button>
+                <button class="button-primary" type="submit">Add Bank</button>
+            </th>
+        </tr>
+    </tfoot>
+</table>
+<?php
+}
+
+function mc_ew_bank_list($posts, $options){
+    $bank_list = new mc_ew_bank_table();
+    $bank_list->prepare_items();
+    $bank_list->display();
 }

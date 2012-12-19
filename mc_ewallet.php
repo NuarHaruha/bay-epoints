@@ -75,7 +75,8 @@ class mc_ewallet
             'json',         // json data & ajax function
             'transaction',  // deposit & logger
             'wallet',       // wallet transaction functions
-            'list'          // recent transaction table list
+            'list',         // recent transaction table list
+            'bank-list'     // bank table list
         );
 
         foreach($libs as $slug){
@@ -171,17 +172,37 @@ class mc_ewallet
                     $this->_registerListMetabox();
                     break;
                 case $this->slug.'-settings':
-                    $this->_registerSettingsMetabox();
+                    switch($req->spanel){
+                        case 'bank':
+                            $this->_registerBankMetabox();
+                            break;
+                        case 'settings':
+                        default:
+                            $this->_registerSettingsMetabox();
+                            break;
+                    }
+
                     break;
             }
         }
+    }
+
+    private function _registerBankMetabox()
+    {
+        $args = array();
+        add_meta_box('opt_ew_bank','Bank Account', 'mc_ew_bank',
+            $this->page['settings'],'normal','high', $args);
+
+        add_meta_box('opt_ew_bank_list','Primary Bank Account List', 'mc_ew_bank_list',
+            $this->page['settings'],'normal','high', $args);
+
     }
 
     private function _registerSettingsMetabox()
     {
         $args = array();
 
-        add_meta_box('opt_ew_settings','General Settings', 'mc_ewallet_general_settings',
+        add_meta_box('opt_ew_settings','General Settings', 'mc_ew_general_settings',
             $this->page['settings'],'normal','high', $args);
     }
 
@@ -343,12 +364,18 @@ class mc_ewallet
         $req = _obj($_REQUEST);
 
         if (isset($req->action)){
-
             switch($req->page)
             {
                 case $this->slug . '-settings':
-                    if ($req->action == 'mc-wallet-settings'){
-                        $this->_saveGeneralOptions();
+                    /** tab section, within settings page */
+                    switch($req->action){
+                        case 'mc-wallet-settings':
+                            $this->_saveGeneralOptions();
+                            break;
+                        case 'mc-wallet-bank':
+                        case '-1':
+                            $this->_saveBankOptions();
+                            break;
                     }
                 break;
                 case $this->slug:
@@ -368,6 +395,45 @@ class mc_ewallet
                     break;
             }
         }
+    }
+
+    /**
+     * Save bank options
+     */
+    private function _saveBankOptions()
+    {
+        $req    = _obj($_REQUEST);
+        $banks  = array();
+
+        if (empty($req->bank_account_no) && empty($req->bank_account_name) ){
+            /**
+             * @todo fallback notice
+             */
+            return false;
+        } else {
+
+            $banks  = get_option(MKEY::BANK_LIST, array());
+
+            $bank   = array(
+                'bank_account_name' => '',
+                'bank_name'         => '',
+                'bank_account_no'   => '',
+                'bank_branch'       => '',
+                'bank_account_type' => ''
+            );
+
+            foreach($bank as $k=>$v){
+                $bank[$k] = $req->$k;
+            }
+
+            $banks[] = $bank;
+
+            update_option(MKEY::BANK_LIST, $banks);
+
+            PATHTYPE::REDIRECT(PATHTYPE::URI_EW_BANK);
+        }
+
+        return false;
     }
 
     /**

@@ -1,11 +1,10 @@
 <?php do_action('main_ewallet_settings_request', $_REQUEST);?>
 <div class="wrap ewallet settings">
-    <div id="icon-wallet" class="icon32"></div>
-    <h2 class="">Manage Settings</h2>
+    <?php show_ew_settings_tab();?>
     <?php settings_errors(); ?>
     <?php do_action('mc_notification', $_REQUEST);?>
     <form name="report-form" method="post">
-        <input type="hidden" name="action" value="mc-wallet-settings">
+        <input type="hidden" name="action" value="<?php echo ew_action_hook();?>">
         <input type="hidden" name="page" value="<?php echo $_REQUEST['page']; ?>"/>
         <?php wp_nonce_field(WTYPE::NONCE_WALLET);
         wp_nonce_field( 'meta-box-order', 'meta-box-order-nonce', false );
