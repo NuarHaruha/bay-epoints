@@ -208,3 +208,48 @@ function mb_ew_receipt_actions($posts, $options){
 </script>
 <?php
 }
+
+/*---------------------------------------------------------------
+ * Settings metabox
+ */
+
+function mc_ewallet_general_settings($posts, $options){
+    ?>
+<table class="form-table widefat">
+    <tr valign="top">
+        <th scope="row">
+            <label for="<?php echo MKEY::CURRENCY;?>">Global Currency</label>
+        </th>
+        <td>
+            <input id="<?php echo MKEY::CURRENCY;?>" name="<?php echo MKEY::CURRENCY;?>" value="<?php has_option(MKEY::CURRENCY); ?>" type="text" class="regular-text"/>
+            <p class="description">Global currency format.</p>
+        </td>
+    </tr>
+    <tr valign="top">
+        <th scope="row">
+            <label for="<?php echo MKEY::MIN_WITHDRAWAL;?>">Minimum withdrawal</label>
+        </th>
+        <td>
+            <input id="<?php echo MKEY::MIN_WITHDRAWAL;?>" name="<?php echo MKEY::MIN_WITHDRAWAL;?>" value="<?php has_option(MKEY::MIN_WITHDRAWAL); ?>" type="text" class="regular-text"/>
+            <p class="description">Minimum amount (i.e <?php echo get_currency(); ?> 100.00, <?php echo get_currency(); ?> 50.00).</p>
+        </td>
+    </tr>
+    <tr valign="top">
+        <th scope="row">
+            <label for="<?php echo MKEY::MIN_TRANSFER;?>">Minimum transfer</label>
+        </th>
+        <td>
+            <input id="<?php echo MKEY::MIN_TRANSFER;?>" name="<?php echo MKEY::MIN_TRANSFER;?>" value="<?php has_option(MKEY::MIN_TRANSFER); ?>" type="text" class="regular-text"/>
+        </td>
+    </tr>
+    <tfoot>
+        <tr>
+            <th colspan="2">
+                <input type="submit" class="button-primary" value="Save Changes">
+            </th>
+        </tr>
+    </tfoot>
+</table>
+<?php
+
+}
