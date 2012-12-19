@@ -80,3 +80,8 @@ function ew_note($tid){
         return false;
     }
 }
+
+function get_currency(){
+    $currency = get_option(MKEY::CURRENCY);
+    return apply_filters('get_currency', $currency);
+}
