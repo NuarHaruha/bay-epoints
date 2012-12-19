@@ -73,3 +73,138 @@ function mb_ew_deposit($posts, $options){
 </table>
 <?php
 }
+
+/*---------------------------------------------------------------
+ * Receipt metabox
+ */
+
+function mb_ew_receipt($posts, $options){
+
+    list($req, $trans) = $options['args'];
+
+    unset($posts, $options);
+?>
+<table class="widefat nobot">
+    <!--<thead>
+        <tr>
+            <td colspan="">Transaction confirmation, please retain for your records</td>
+        </tr>
+    </thead> -->
+    <tbody>
+        <tr>
+            <th scope="row" style="width: 20%">
+               <label for="receipt_id">Transaction ID:</label>
+            </th>
+            <td style="width: 30%">
+                <input type="text" id="receipt_id" value="<?php ew_format_receipt($req);?>" class="width-85 code disabled">
+            </td>
+            <th scope="row" style="width: 20%">
+                <label for="tdate">Transaction Date:</label>
+            </th>
+            <td style="width: 30%">
+                <input id="tdate" class="width-85 code disabled" value="<?php echo $trans->date;?>">
+            </td>
+        </tr>
+        <tr>
+            <th scope="row">
+                <label for="transfer_code">
+                     Transaction type
+                </label>
+            </th>
+            <td>
+                <input id="transfer_code" class="width-85 code disabled" value="<?php echo $trans->transaction.' - '.strtoupper(tr_code($trans->transaction)); ?>">
+            </td>
+            <th scope="row">
+                <label for="currency">Amount:</label>
+            </th>
+            <td>
+                <input id="currency" class="width-85 code disabled" value="<?php echo tr_currency($trans->currency) . ' ' . $trans->points ;?>">
+            </td>
+        </tr>
+        <tr>
+            <th scope="row">
+                <label for="transfer_code_name">Recipient Name:</label>
+            </th>
+            <td style="width: 30%">
+                <input id="transfer_code_name" class="width-85 code disabled" value="<?php echo strtoupper(uinfo($trans->uid));?>">
+            </td>
+            <th scope="row" style="width: 20%">
+                <label for="member_id">Recipient ID:</label>
+            </th>
+            <td style="width: 30%">
+                <input id="member_id" class="width-85 code disabled" value="<?php echo uinfo($trans->uid,'code')?> ">
+            </td>
+        </tr>
+    </tbody>
+ </table>
+<?php
+}
+
+function mb_ew_receipt_actions($posts, $options){
+    list($req, $trans) = $options['args'];
+    unset($posts, $options);
+?>
+<table class="widefat nobot">
+    <tbody>
+    <tr>
+        <th scope="row">
+            <label for="transfer_by">
+                Approved by
+            </label>
+        </th>
+        <td>
+            <input id="transfer_by" class="width-85 code disabled" value="<?php echo strtoupper(ew_approved_by($trans->transaction_id)); ?>">
+        </td>
+    </tr>
+    <tr>
+        <th scope="row">
+            <label for="approved_role">
+                Role
+            </label>
+        </th>
+        <td>
+            <select id="approved_role" class="disabled">
+<?php
+
+            $user = new WP_User( ew_approved_by($trans->transaction_id, true) );
+
+            if ( !empty( $user->roles ) && is_array( $user->roles ) ) {
+                foreach ( $user->roles as $role )
+                    echo _t('option', ucfirst($role) );
+            }
+?>
+            </select>
+        </td>
+    </tr>
+    <tr>
+        <th scope="row">
+            <label for="transfer_note">Transfer Note</label>
+        </th>
+        <td>
+            <input id="transfer_note" class="width-85 code disabled" value="<?php echo ew_note($trans->transaction_id); ?>">
+        </td>
+    </tr>
+    </tbody>
+    <tfoot>
+    <tr>
+        <th colspan="4">
+            <button class="button-secondary go-print">Print Receipt</button>
+            <button class="button-secondary go-back">Back</button>
+            <!--
+            <button class="button-secondary">Cancel Transaction</button>
+            <button class="button-secondary">View List</button>
+            -->
+        </th>
+    </tr>
+    </tfoot>
+</table>
+<script>
+    jQuery(document).ready(function($){
+        $('.go-print').click(function(e){
+            e.preventDefault();
+            $('#opt_ew_receipt').jqprint();
+        });
+    });
+</script>
+<?php
+}
