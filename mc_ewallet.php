@@ -73,7 +73,8 @@ class mc_ewallet
             'metabox',      // metabox widgets
             'actions',      // actions hook
             'json',         // json data & ajax function
-            'transaction'   // deposit & logger
+            'transaction',  // deposit & logger
+            'wallet'        // wallet transaction functions
         );
 
         foreach($libs as $slug){
@@ -132,6 +133,10 @@ class mc_ewallet
      */
     public function registerAdminMetabox()
     {
+        if (isset($_REQUEST['receipt'])){
+                $this->_registerReceiptMetabox();
+        }
+
         if (isset($_REQUEST['panel'])){
             switch($_REQUEST['panel']){
                 case 'deposit':
@@ -148,6 +153,23 @@ class mc_ewallet
         } else {
             $this->_registerListMetabox();
         }
+    }
+
+    private function _registerReceiptMetabox()
+    {
+        $req            = _obj($_REQUEST);
+        $transaction    = get_ew_transaction($req->tid);
+
+        $args = array(
+            $req,               // 0. global request array as object
+            $transaction[0]     // 1. transaction records object
+        );
+
+        add_meta_box('opt_ew_receipt','Transaction Details', 'mb_ew_receipt',
+            $this->page['primary'],'normal','high', $args);
+
+        add_meta_box('opt_ew_receipt_actions','Transaction Log', 'mb_ew_receipt_actions',
+            $this->page['primary'],'side','high', $args);
     }
 
     private function _registerListMetabox()
@@ -171,7 +193,11 @@ class mc_ewallet
         switch($_REQUEST['page']){
             case $this->slug:
             default:
-                require_once $this->plugin_path.'panels/main.php';
+                if (!isset($_REQUEST['receipt'])){
+                    require_once $this->plugin_path.'panels/main.php';
+                } else {
+                    require_once $this->plugin_path.'panels/receipt.php';
+                }
                 break;
         }
     }
@@ -230,7 +256,9 @@ class mc_ewallet
      */
     public function pageActions()
     {
-        $page   = 'mc-ew_page_'.$_REQUEST['page'];
+        $req = _obj($_REQUEST);
+
+        $page   = 'mc-ew_page_'.$req->page;
 
         do_action('add_meta_boxes_'.$page, null);
         do_action('add_meta_boxes', $page, null);
@@ -240,8 +268,19 @@ class mc_ewallet
         wp_enqueue_script('jquery');
         wp_enqueue_script('postbox');
 
-        if (isset($_REQUEST['panel']) && $_REQUEST['panel'] == 'deposit'){
+        /**
+         *  auto-complete scripts
+         */
+        if (isset($req->panel) && $req->panel == 'deposit'){
             wp_enqueue_script('ewallet-suggest');
+        }
+
+        /**
+         *  jqPrint, assumed script already registered
+         * @see mc_epin
+         */
+        if (isset($req->receipt)){
+            wp_enqueue_script('jqprint');
         }
     }
 
@@ -328,8 +367,6 @@ class mc_ewallet
                 }
 
             }
-
-            PATHTYPE::REDIRECT(PATHTYPE::URI_EWALLET);
         }
     }
 
