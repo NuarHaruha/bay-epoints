@@ -61,3 +61,27 @@ function act_transaction_end($transaction_id, $transaction){
     $url = sprintf(PATHTYPE::URI_EW_RECEIPT, $transaction_id, $transaction['uid'], $transaction['code']);
     PATHTYPE::REDIRECT($url);
 }
+
+add_action('init','mc_filter_init');
+
+function mc_filter_init(){
+    foreach_filters(array(
+        'before_save_'.MKEY::MIN_TRANSFER,
+        'before_save_'.MKEY::MIN_WITHDRAWAL), 'filter_before_save_minimum');
+}
+
+function filter_before_save_minimum($amount){
+    $amount   = strtolower($amount);
+    $currency = strtolower(get_currency());
+    $amount = strem($currency,$amount);
+    $amount = strem(' ',$amount);
+
+    return (int) $amount;
+}
+
+function foreach_filters($hooks, $callback){
+
+    foreach($hooks as $hook) {
+        add_filter($hook, $callback);
+    }
+}
