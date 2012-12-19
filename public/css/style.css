@@ -1,7 +1,7 @@
 .db{ display:block}
 .dn{display:none}
 .muted{color:silver}
-.txright{text-align:right}
+.txright{text-align:right !important;}
 .txleft{text-align:left}
 
 #icon-wallet{background: url('../img/ewallet-32.png') no-repeat 0% 0%; }
