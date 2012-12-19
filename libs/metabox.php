@@ -24,6 +24,7 @@
  * @return void     show deposit form
  */
 function mb_ew_deposit($posts, $options){
+    $action = ($_REQUEST['panel'] == 'penalty') ? 'penalty' : 'deposit';
 ?>
 <table class="widefat">
     <tbody>
@@ -66,7 +67,7 @@ function mb_ew_deposit($posts, $options){
     <tfoot>
         <tr>
             <th colspan="4">
-                    <input type="submit" name="section_deposit" class="button-primary" value="Send Deposit">
+                    <input type="submit" name="section_<?php echo $action; ?>" class="button-primary" value="Send Deposit">
             </th>
         </tr>
     </tfoot>

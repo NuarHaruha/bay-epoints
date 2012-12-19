@@ -58,7 +58,7 @@ function act_transaction_note($transaction_id, $transaction){
  * to receipt details page
  */
 function act_transaction_end($transaction_id, $transaction){
-    $url = sprintf(PATHTYPE::URI_EW_RECEIPT, $transaction_id, $transaction['uid'], $transaction['code']);
+    $url = sprintf(PATHTYPE::URI_EW_RECEIPT, $transaction_id, $transaction['uid'], (int) $transaction['transaction']);
     PATHTYPE::REDIRECT($url);
 }
 

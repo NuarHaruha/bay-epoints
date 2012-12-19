@@ -74,7 +74,8 @@ class mc_ewallet
             'actions',      // actions hook
             'json',         // json data & ajax function
             'transaction',  // deposit & logger
-            'wallet'        // wallet transaction functions
+            'wallet',       // wallet transaction functions
+            'list'          // recent transaction table list
         );
 
         foreach($libs as $slug){
@@ -202,7 +203,14 @@ class mc_ewallet
     }
 
     private function _registerListMetabox()
-    {}
+    {
+        $args = array();
+
+        $title = (!isset($_REQUEST['receipt'])) ? 'Transaction Records' : 'Recent Transaction Records';
+
+        add_meta_box('opt_ew_transfer_list', $title, 'mc_render_ewallet_transfer_page',
+            $this->page['primary'],'normal','high', $args);
+    }
 
     private function _registerDepositMetabox()
     {
@@ -213,7 +221,13 @@ class mc_ewallet
     }
 
     private function _registerPenaltyMetabox()
-    {}
+    {
+        $args = array();
+
+        add_meta_box('opt_ew_penalty','Penalty to e-Wallet', 'mb_ew_deposit',
+            $this->page['primary'],'normal','high', $args);
+    }
+
     /**
      * load admin page
      */
@@ -304,7 +318,7 @@ class mc_ewallet
         /**
          *  auto-complete scripts
          */
-        if (isset($req->panel) && $req->panel == 'deposit'){
+        if (isset($req->panel) && $req->panel != 'list'){
             wp_enqueue_script('ewallet-suggest');
         }
 
@@ -342,6 +356,7 @@ class mc_ewallet
                     /** tab section, within main page */
                         switch ($req->action):
                             case 'mc-wallet-penalty':
+                                $this->_processPenalty();
                                 break;
                             case 'mc-wallet-deposit':
                                 $this->_saveDeposit();
@@ -383,45 +398,80 @@ class mc_ewallet
         {
             if (isset($req->section_deposit))
             {
-                $user       = new stdClass();
-                $meta_keys  = array(
-                    'user_name',
-                    'user_code',
-                    'user_id',
-                    'deposit_amount',
-                    'timestamp',
-                    'transaction_type',
-                    'transaction_note'
-                );
-
-                foreach($meta_keys as $k)
-                {
-                    if (isset($_REQUEST[$k]) && !empty($_REQUEST[$k]))
-                    {
-                        $value = $_REQUEST[$k];
-                        switch($k){
-                            case 'user_id': $value = (int) $value; break;
-                            case 'deposit_amount':  $value = floatval($value); break;
-                        }
-                        $user->$k = $value;
-                    }
-                }
+                $user       = $this->_prepareUsermetaRequest();
 
                 if (isset($user->transaction_type)){
                     switch ($user->transaction_type){
                         case WTYPE::DEPOSIT_RM:
                             deposit_points_rm($user->user_id, $user->deposit_amount);
                             $this->_log($user->user_id, $user->deposit_amount);
-                            break;
+                        break;
                         case WTYPE::DEPOSIT_PV:
                             deposit_points_pv($user->user_id, $user->deposit_amount);
                             $this->_log($user->user_id, $user->deposit_amount, WTYPE::DEPOSIT_PV, WTYPE::PV);
-                            break;
+                        break;
                     }
                 }
 
             }
         }
+    }
+
+
+    private function _processPenalty()
+    {
+        $req = _obj($_REQUEST);
+
+        if (wp_verify_nonce($req->_wpnonce, WTYPE::NONCE_WALLET) )
+        {
+            if (isset($req->section_penalty))
+            {
+                $user       = $this->_prepareUsermetaRequest();
+
+                if (isset($user->transaction_type)){
+                    switch ($user->transaction_type){
+                        case WTYPE::DEPOSIT_RM:
+                            deduct_points_rm($user->user_id, $user->deposit_amount);
+                            $this->_log($user->user_id, $user->deposit_amount, WTYPE::PENALTY_RM, WTYPE::RM);
+                        break;
+                        case WTYPE::DEPOSIT_PV:
+                            deduct_points_pv($user->user_id, $user->deposit_amount);
+                            $this->_log($user->user_id, $user->deposit_amount, WTYPE::PENALTY_PV, WTYPE::PV);
+                        break;
+                    }
+                }
+
+            }
+        }
+    }
+
+    private function _prepareUsermetaRequest()
+    {
+        $user       = new stdClass();
+        $meta_keys  = array(
+            'user_name',
+            'user_code',
+            'user_id',
+            'deposit_amount',
+            'timestamp',
+            'transaction_type',
+            'transaction_note'
+        );
+
+        foreach($meta_keys as $k)
+        {
+            if (isset($_REQUEST[$k]) && !empty($_REQUEST[$k]))
+            {
+                $value = $_REQUEST[$k];
+                switch($k){
+                    case 'user_id': $value = (int) $value; break;
+                    case 'deposit_amount':  $value = floatval($value); break;
+                }
+                $user->$k = $value;
+            }
+        }
+
+        return $user;
     }
 
     /**

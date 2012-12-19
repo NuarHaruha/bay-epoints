@@ -160,18 +160,20 @@ function deposit_points_pv($uid, $points) { return deposit_points($uid, $points,
 function translate_transaction_code($transaction_code)
 {
     switch ($transaction_code){
-        case WTYPE::RM;
+        case WTYPE::RM:
             return 'RM';
             break;
-        case WTYPE::PV;
+        case WTYPE::PV:
             return 'PV';
             break;    
-        case WTYPE::DEPOSIT_RM;
+        case WTYPE::DEPOSIT_RM:
+        case WTYPE::DEPOSIT_PV:
             return 'Deposit';
             break;
-        case WTYPE::DEPOSIT_PV;
-            return 'Deposit';
-            break;                                                            
+        case WTYPE::PENALTY_RM:
+        case WTYPE::PENALTY_PV:
+            return 'Penalty - Deduction';
+            break;
     }
     
     return $transaction_code;
@@ -219,3 +221,48 @@ function get_transaction_by($transaction_id){
 function get_transaction_notes($transaction_id){
     return get_transaction_meta($transaction_id, MKEY::TRANS_NOTES);
 }
+
+/** deduct_points()
+ *
+ * alter points function, decremental update
+ *
+ * @author  Nuarharuha <nhnoah+bay-isra@gmail.com>
+ * @since   1.0.0
+ * @version 0.1
+ *
+ * @param   int     $uid        valid wp user_id
+ * @param   float   $points     points to add must be int or float
+ * @param   string  $type       type of points to update, default is RM
+ *                              MKEY, MKEY::RM, MKEY::PV, MKEY::POINTS
+ */
+function deduct_points($uid, $points, $type = MKEY::RM) {
+
+    $points = filter_points($points);
+    $amount = get_points($uid, $type) - $points;
+
+    return update_points($uid, $amount, $type);
+}
+
+/** deduct_points_pv()
+ *
+ * A shorthand function for deduct_points()
+ * Deduct user PV points
+ *
+ * @author  Nuarharuha <nhnoah+bay-isra@gmail.com>
+ * @since   1.0.0
+ *
+ * @param   int     $uid        valid wp user_id
+ */
+function deduct_points_pv($uid, $points) { return deduct_points($uid, $points, MKEY::PV); }
+
+/** deduct_points_rm()
+ *
+ * A shorthand function for deduct_points()
+ * Deduct user RM points
+ *
+ * @author  Nuarharuha <nhnoah+bay-isra@gmail.com>
+ * @since   1.0.0
+ *
+ * @param   int     $uid        valid wp user_id
+ */
+function deduct_points_rm($uid, $points) { return deduct_points($uid, $points); }
